@@ -6,7 +6,7 @@ app = Flask(__name__)
 # --- CONFIGURACIÓN DE LA BANDA ---
 DATOS_BANDA = {
     "nombre": "LOS DISCORDE",
-    "imagen_url": "/static/foto.jpg",  # Pon aquí tu imagen en la carpeta static/
+    "imagen_url": "/static/foto.jpg",
     "setlist": [
         {"titulo": "Con calma", "letra": "Intro\n\nNo siempre, tenemos que huir\nSi lo intentamos\nSi no hay nada más, ¿Por qué seguir?...\n\nVerso\n\nDejamos de engañarnos\nNo está funcionando\nIntentando acercarnos\nSolo nos alejamos\nNos tenemos que soltar\nNos tenemos que soltar\n\nCoro\n\nNo siempre, tenemos que huir\nSi lo intentamos...\nSi no hay nada más, ¿Por qué seguir?\n\nPuente\n\nCon calma, con calmaaa\nCon calma, con calmaaa\nCon calma, con calmaaa\nCon calma, con calmaaa\n\nCoro Final\n\nNo siempre, tenemos que huir\nSi lo intentamos...\nSi no hay nada más, ¿Por qué seguir?\nX2"},
         {"titulo": "Tiempo", "letra": "Verso\n\nBuscó la manera de avanzar\nIntentando ya no tropezar\nEl tiempo es diferente\nY siento que me miente\nSiempre el cambio es frecuente, frecuente\n\nCoro\n\nQué sería de mí\nQué sería de ti\nCasi nadie conoce el final\n\nVerso\n\nEl tiempo, no te va, esperar\nEncontremos el momento\nDe hablar\n\nCoro\n\nQué sería de mí\nQué sería de ti\nCasi nadie conoce el final\nQué sería de mí\nQué sería de ti\nCasi nadie conoce el final"},
@@ -19,73 +19,11 @@ DATOS_BANDA = {
     ]
 }
 
-HTML_Toy = """
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ banda.nombre }} - Setlist</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #121212; color: #ffffff; font-family: sans-serif; }
-        .cancion-card { background-color: #1e1e1e; border-radius: 8px; margin-bottom: 1rem; }
-        .letra { display: none; white-space: pre-line; color: #b3b3b3; padding: 1rem; border-top: 1px solid #333; }
-    </style>
-</head>
-<body class="p-4">
-    <header class="text-center py-6">
-        <img src="{{ banda.imagen_url }}" alt="Foto de {{ banda.nombre }}" class="mx-auto rounded-lg mb-4">
-        <h1 class="text-3xl font-bold text-yellow-500">{{ banda.nombre }}</h1>
-        <p class="text-gray-400">Escanea el QR y sigue la letra en vivo</p>
-    </header>
-
-    <main class="max-w-md mx-auto">
-        {% for item in banda.setlist %}
-        <div class="cancion-card">
-            <button
-                onclick="toggleLetra({{ loop.index }})"
-                class="w-full text-left p-4 font-semibold text-lg flex justify-between items-center"
-                aria-expanded="false"
-                id="btn-{{ loop.index }}"
-            >
-                {{ loop.index }}. {{ item.titulo }}
-                <span id="icon-{{ loop.index }}" class="text-yellow-500">+</span>
-            </button>
-            <div id="letra-{{ loop.index }}" class="letra">
-                {{ item.letra }}
-            </div>
-        </div>
-        {% endfor %}
-    </main>
-
-    <script>
-        function toggleLetra(id) {
-            const el = document.getElementById('letra-' + id);
-            const icon = document.getElementById('icon-' + id);
-            const btn = document.getElementById('btn-' + id);
-
-            const estaAbierto = el.style.display === 'block';
-
-            if (estaAbierto) {
-                el.style.display = 'none';
-                icon.textContent = '+';
-                btn.setAttribute('aria-expanded', 'false');
-            } else {
-                el.style.display = 'block';
-                icon.textContent = '−';
-                btn.setAttribute('aria-expanded', 'true');
-            }
-        }
-    </script>
-</body>
-</html>
-"""
-
 
 @app.route('/')
 def home():
     return render_template('index.html', banda=DATOS_BANDA)
+
 
 if __name__ == '__main__':
     debug_mode = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
