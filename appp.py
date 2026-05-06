@@ -6,7 +6,7 @@ app = Flask(__name__)
 # --- CONFIGURACIÓN DE LA BANDA ---
 DATOS_BANDA = {
     "nombre": "LOS DISCORDE",
-    "imagen_url": "https://placehold.co/400x200",  # FIX: via.placeholder.com reemplazado
+    "imagen_url": "/static/foto.jpg",  # Pon aquí tu imagen en la carpeta static/
     "setlist": [
         {"titulo": "Con calma", "letra": "Intro\n\nNo siempre, tenemos que huir\nSi lo intentamos\nSi no hay nada más, ¿Por qué seguir?...\n\nVerso\n\nDejamos de engañarnos\nNo está funcionando\nIntentando acercarnos\nSolo nos alejamos\nNos tenemos que soltar\nNos tenemos que soltar\n\nCoro\n\nNo siempre, tenemos que huir\nSi lo intentamos...\nSi no hay nada más, ¿Por qué seguir?\n\nPuente\n\nCon calma, con calmaaa\nCon calma, con calmaaa\nCon calma, con calmaaa\nCon calma, con calmaaa\n\nCoro Final\n\nNo siempre, tenemos que huir\nSi lo intentamos...\nSi no hay nada más, ¿Por qué seguir?\nX2"},
         {"titulo": "Tiempo", "letra": "Verso\n\nBuscó la manera de avanzar\nIntentando ya no tropezar\nEl tiempo es diferente\nY siento que me miente\nSiempre el cambio es frecuente, frecuente\n\nCoro\n\nQué sería de mí\nQué sería de ti\nCasi nadie conoce el final\n\nVerso\n\nEl tiempo, no te va, esperar\nEncontremos el momento\nDe hablar\n\nCoro\n\nQué sería de mí\nQué sería de ti\nCasi nadie conoce el final\nQué sería de mí\nQué sería de ti\nCasi nadie conoce el final"},
@@ -19,10 +19,7 @@ DATOS_BANDA = {
     ]
 }
 
-
-# --- DISEÑO DE LA INTERFAZ (HTML/CSS) ---
-''' 
-
+"""
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -38,6 +35,7 @@ DATOS_BANDA = {
 </head>
 <body class="p-4">
     <header class="text-center py-6">
+        <img src="{{ banda.imagen_url }}" alt="Foto de {{ banda.nombre }}" class="mx-auto rounded-lg mb-4">
         <h1 class="text-3xl font-bold text-yellow-500">{{ banda.nombre }}</h1>
         <p class="text-gray-400">Escanea el QR y sigue la letra en vivo</p>
     </header>
@@ -52,7 +50,6 @@ DATOS_BANDA = {
                 id="btn-{{ loop.index }}"
             >
                 {{ loop.index }}. {{ item.titulo }}
-                {# FIX: id y class separados correctamente #}
                 <span id="icon-{{ loop.index }}" class="text-yellow-500">+</span>
             </button>
             <div id="letra-{{ loop.index }}" class="letra">
@@ -68,17 +65,14 @@ DATOS_BANDA = {
             const icon = document.getElementById('icon-' + id);
             const btn = document.getElementById('btn-' + id);
 
-            // FIX: comparar con '' cubre el estado inicial
             const estaAbierto = el.style.display === 'block';
 
             if (estaAbierto) {
                 el.style.display = 'none';
-                // FIX: actualizar ícono visualmente
                 icon.textContent = '+';
                 btn.setAttribute('aria-expanded', 'false');
             } else {
                 el.style.display = 'block';
-                // FIX: actualizar ícono visualmente
                 icon.textContent = '−';
                 btn.setAttribute('aria-expanded', 'true');
             }
@@ -86,14 +80,13 @@ DATOS_BANDA = {
     </script>
 </body>
 </html>
-'''
+"""
+
+
 @app.route('/')
 def home():
     return render_template('index.html', banda=DATOS_BANDA)
 
 if __name__ == '__main__':
-    # FIX: debug controlado por variable de entorno
     debug_mode = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
     app.run(debug=debug_mode)
-
-
