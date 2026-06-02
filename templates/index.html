@@ -244,16 +244,16 @@
 <div class="wrapper">
 
     <header>
-        <div class="band-photo-wrap">
-            <img src="{{ banda.imagen_url }}" alt="{{ banda.nombre }}"
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div class="band-photo-placeholder" style="display:none;">🎸</div>
-        </div>
+        <div class="band-photo-wrap" onclick="abrirZoom()" style="cursor:zoom-in;">
+    <img src="{{ banda.imagen_url }}" alt="{{ banda.nombre }}"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="band-photo-placeholder" style="display:none;">🎸</div>
+</div>
 
-        <h1>{{ banda.nombre }}</h1>
-        <p class="subtitle">Sigue la letra en vivo</p>
-
-        <div class="divider"><span>Setlist</span></div>
+<!-- Modal zoom -->
+<div id="zoom-modal" onclick="cerrarZoom()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:999; align-items:center; justify-content:center; cursor:zoom-out;">
+    <img src="{{ banda.imagen_url }}" style="max-width:92vw; max-height:92vh; border-radius:12px; box-shadow:0 0 60px rgba(0,0,0,0.8);">
+</div>
     </header>
 
     <main class="setlist">
@@ -276,6 +276,7 @@
     </footer>
 
 </div>
+
 
 <script>
     // Letras raw desde Jinja (escapadas para JS)
@@ -333,6 +334,19 @@
             }, 80);
         }
     }
+
+function abrirZoom() {
+    const modal = document.getElementById('zoom-modal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function cerrarZoom() {
+    const modal = document.getElementById('zoom-modal');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
 </script>
 </body>
 </html>
