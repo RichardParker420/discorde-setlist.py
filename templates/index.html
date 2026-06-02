@@ -240,6 +240,26 @@
         }
     </style>
 </head>
+
+<style>
+@keyframes zoomIn {
+    from { opacity:0; transform:scale(0.88); }
+    to   { opacity:1; transform:scale(1); }
+}
+</style>
+<script>
+function abrirZoom() {
+    const overlay = document.getElementById('zoom-overlay');
+    overlay.style.display = 'flex';
+}
+function cerrarZoom() {
+    document.getElementById('zoom-overlay').style.display = 'none';
+}
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') cerrarZoom();
+});
+</script>
+
 <body>
 <div class="wrapper">
 
@@ -250,10 +270,22 @@
     <div class="band-photo-placeholder" style="display:none;">🎸</div>
 </div>
 
-<!-- Modal zoom -->
-<div id="zoom-modal" onclick="cerrarZoom()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:999; align-items:center; justify-content:center; cursor:zoom-out;">
-    <img src="{{ banda.imagen_url }}" style="max-width:92vw; max-height:92vh; border-radius:12px; box-shadow:0 0 60px rgba(0,0,0,0.8);">
+<!-- Zoom overlay -->
+<div id="zoom-overlay" onclick="cerrarZoom()" style="
+    display:none; position:fixed; inset:0; z-index:999;
+    background:rgba(0,0,0,0.92); cursor:zoom-out;
+    align-items:center; justify-content:center;">
+    <img src="{{ banda.imagen_url }}" style="
+        max-width:92vw; max-height:92vh;
+        border-radius:12px;
+        box-shadow:0 0 60px rgba(232,200,74,0.2);
+        animation: zoomIn 0.25s ease;">
 </div>
+
+        <h1>{{ banda.nombre }}</h1>
+        <p class="subtitle">Sigue la letra en vivo</p>
+
+        <div class="divider"><span>Setlist</span></div>
     </header>
 
     <main class="setlist">
@@ -276,7 +308,6 @@
     </footer>
 
 </div>
-
 
 <script>
     // Letras raw desde Jinja (escapadas para JS)
@@ -334,19 +365,6 @@
             }, 80);
         }
     }
-
-function abrirZoom() {
-    const modal = document.getElementById('zoom-modal');
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function cerrarZoom() {
-    const modal = document.getElementById('zoom-modal');
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
-}
-
 </script>
 </body>
 </html>
