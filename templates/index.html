@@ -240,47 +240,15 @@
         }
     </style>
 </head>
-
-<style>
-@keyframes zoomIn {
-    from { opacity:0; transform:scale(0.88); }
-    to   { opacity:1; transform:scale(1); }
-}
-</style>
-<script>
-function abrirZoom() {
-    const overlay = document.getElementById('zoom-overlay');
-    overlay.style.display = 'flex';
-}
-function cerrarZoom() {
-    document.getElementById('zoom-overlay').style.display = 'none';
-}
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') cerrarZoom();
-});
-</script>
-
 <body>
 <div class="wrapper">
 
     <header>
-        <div class="band-photo-wrap" onclick="abrirZoom()" style="cursor:zoom-in;">
-    <img src="{{ banda.imagen_url }}" alt="{{ banda.nombre }}"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-    <div class="band-photo-placeholder" style="display:none;">🎸</div>
-</div>
-
-<!-- Zoom overlay -->
-<div id="zoom-overlay" onclick="cerrarZoom()" style="
-    display:none; position:fixed; inset:0; z-index:999;
-    background:rgba(0,0,0,0.92); cursor:zoom-out;
-    align-items:center; justify-content:center;">
-    <img src="{{ banda.imagen_url }}" style="
-        max-width:92vw; max-height:92vh;
-        border-radius:12px;
-        box-shadow:0 0 60px rgba(232,200,74,0.2);
-        animation: zoomIn 0.25s ease;">
-</div>
+        <div class="band-photo-wrap">
+            <img src="{{ banda.imagen_url }}" alt="{{ banda.nombre }}"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="band-photo-placeholder" style="display:none;">🎸</div>
+        </div>
 
         <h1>{{ banda.nombre }}</h1>
         <p class="subtitle">Sigue la letra en vivo</p>
