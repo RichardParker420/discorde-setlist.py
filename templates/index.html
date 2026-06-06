@@ -314,6 +314,116 @@
             margin-bottom: 0.1rem;
         }
 
+        /* LIVE MODE */
+        .live-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 50;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            padding: 0.7rem 1.2rem;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .live-bar.visible { display: flex; }
+
+        .live-dot {
+            width: 8px; height: 8px;
+            background: #e84a4a;
+            border-radius: 50%;
+            animation: pulse 1.2s ease infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        .live-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            color: #e84a4a;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .live-song-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            color: var(--text);
+            letter-spacing: 0.05em;
+            flex: 1;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .live-timer {
+            font-size: 0.8rem;
+            color: var(--muted);
+            font-variant-numeric: tabular-nums;
+            min-width: 3rem;
+            text-align: right;
+        }
+
+        .live-progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 2px;
+            background: var(--accent);
+            z-index: 51;
+            transition: width 1s linear;
+            width: 0%;
+        }
+
+        /* Active song highlight */
+        .song-card.active-song {
+            border-color: var(--accent) !important;
+            background: #1a1700;
+        }
+
+        .song-card.active-song .song-number { color: var(--accent); }
+        .song-card.active-song .song-title  { color: var(--white); }
+
+        .song-card.played-song {
+            opacity: 0.45;
+        }
+
+        /* Live start button */
+        .live-start-wrap {
+            text-align: center;
+            margin: 1.5rem 0 0.5rem;
+        }
+
+        .btn-live {
+            background: none;
+            border: 1px solid #e84a4a;
+            color: #e84a4a;
+            padding: 0.6rem 1.4rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: background 0.2s, color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-live:hover { background: rgba(232,74,74,0.1); }
+
+        .btn-live.on {
+            background: #e84a4a;
+            color: #fff;
+        }
+
         footer {
             text-align: center;
             padding-top: 3rem;
@@ -324,6 +434,17 @@
     </style>
 </head>
 <body>
+<!-- PROGRESS BAR -->
+<div class="live-progress" id="live-progress"></div>
+
+<!-- LIVE BAR -->
+<div class="live-bar" id="live-bar">
+    <div class="live-dot"></div>
+    <span class="live-label">En vivo</span>
+    <span class="live-song-name" id="live-song-name">—</span>
+    <span class="live-timer" id="live-timer">0:00</span>
+</div>
+
 <div class="wrapper">
 
     <!-- ZOOM OVERLAY -->
@@ -344,11 +465,18 @@
         <p class="subtitle">Sigue la letra en vivo</p>
 
         <div class="divider"><span>Setlist</span></div>
+
+        <div class="live-start-wrap">
+            <button class="btn-live" id="btn-live" onclick="toggleLive()">
+                <span id="live-btn-dot">●</span>
+                <span id="live-btn-text">Iniciar modo en vivo</span>
+            </button>
+        </div>
     </header>
 
     <main class="setlist">
         {% for item in banda.setlist %}
-        <div class="song-card" id="card-{{ loop.index }}" style="animation-delay: {{ (loop.index0 * 0.05)|round(2) }}s">
+        <div class="song-card" id="card-{{ loop.index }}" data-duracion="{{ item.duracion }}" style="animation-delay: {{ (loop.index0 * 0.05)|round(2) }}s">
             <button class="song-btn" onclick="toggleCancion({{ loop.index }})" aria-expanded="false" id="btn-{{ loop.index }}">
                 <span class="song-number">{{ '%02d' % loop.index }}</span>
                 <span class="song-title">{{ item.titulo }}</span>
@@ -368,7 +496,103 @@
 </div>
 
 <script>
-    // ZOOM
+    // ── LIVE MODE ──────────────────────────────────────────
+    let liveActivo    = false;
+    let cancionActual = 0;
+    let timerInterval = null;
+    let segundosRestantes = 0;
+    let totalSegundos = 0;
+
+    const cards = Array.from(document.querySelectorAll('.song-card'));
+    const duraciones = cards.map(c => parseInt(c.dataset.duracion) || 180);
+    const titulos    = cards.map(c => c.querySelector('.song-title').textContent);
+
+    function toggleLive() {
+        if (!liveActivo) iniciarLive();
+        else detenerLive();
+    }
+
+    function iniciarLive() {
+        liveActivo = true;
+        cancionActual = 0;
+
+        document.getElementById('btn-live').classList.add('on');
+        document.getElementById('live-btn-text').textContent = 'Detener modo en vivo';
+        document.getElementById('live-bar').classList.add('visible');
+        document.querySelector('.wrapper').style.paddingTop = '3.5rem';
+
+        activarCancion(0);
+    }
+
+    function detenerLive() {
+        liveActivo = false;
+        clearInterval(timerInterval);
+
+        document.getElementById('btn-live').classList.remove('on');
+        document.getElementById('live-btn-text').textContent = 'Iniciar modo en vivo';
+        document.getElementById('live-bar').classList.remove('visible');
+        document.getElementById('live-progress').style.width = '0%';
+        document.querySelector('.wrapper').style.paddingTop = '';
+
+        cards.forEach(c => {
+            c.classList.remove('active-song', 'played-song');
+        });
+    }
+
+    function activarCancion(idx) {
+        if (idx >= cards.length) {
+            detenerLive();
+            return;
+        }
+
+        cancionActual = idx;
+        totalSegundos = duraciones[idx];
+        segundosRestantes = totalSegundos;
+
+        // Actualizar estilos
+        cards.forEach((c, i) => {
+            c.classList.remove('active-song');
+            if (i < idx)  c.classList.add('played-song');
+            if (i >= idx) c.classList.remove('played-song');
+        });
+        cards[idx].classList.add('active-song');
+
+        // Abrir letra de la canción activa
+        toggleCancion(idx + 1);
+
+        // Scroll a la canción activa
+        setTimeout(() => {
+            cards[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+
+        // Actualizar live bar
+        document.getElementById('live-song-name').textContent = titulos[idx];
+        actualizarTimer();
+
+        // Iniciar countdown
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            segundosRestantes--;
+            actualizarTimer();
+
+            const progreso = ((totalSegundos - segundosRestantes) / totalSegundos) * 100;
+            document.getElementById('live-progress').style.width = progreso + '%';
+
+            if (segundosRestantes <= 0) {
+                clearInterval(timerInterval);
+                setTimeout(() => activarCancion(cancionActual + 1), 500);
+            }
+        }, 1000);
+    }
+
+    function actualizarTimer() {
+        const m = Math.floor(segundosRestantes / 60);
+        const s = segundosRestantes % 60;
+        document.getElementById('live-timer').textContent =
+            m + ':' + String(s).padStart(2, '0');
+    }
+
+    // ── ZOOM ──────────────────────────────────────────────
     function abrirZoom() {
         const overlay = document.getElementById('zoom-overlay');
         overlay.classList.add('active');
