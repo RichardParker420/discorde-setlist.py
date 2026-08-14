@@ -427,9 +427,37 @@
         footer {
             text-align: center;
             padding-top: 3rem;
+            padding-bottom: 1rem;
             font-size: 0.72rem;
             color: #444;
             letter-spacing: 0.1em;
+        }
+
+        .ig-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.55rem 1.2rem;
+            border: 1px solid #333;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #aaa;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+
+        .ig-link:hover {
+            border-color: #e1306c;
+            color: #e1306c;
+            background: rgba(225, 48, 108, 0.06);
+        }
+
+        .ig-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
         }
     </style>
 </head>
@@ -491,6 +519,14 @@
 
     <footer>
         <p>{{ banda.nombre }} &mdash; todos los derechos reservados</p>
+        <a class="ig-link" href="https://www.instagram.com/losdiscorde?igsh=bXVkdzZ0cHhkZDUy" target="_blank" rel="noopener">
+            <svg class="ig-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/>
+            </svg>
+            @losdiscorde
+        </a>
     </footer>
 
 </div>
